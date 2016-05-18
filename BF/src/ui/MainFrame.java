@@ -2,11 +2,13 @@ package ui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.rmi.RemoteException;
 
+import javax.print.attribute.standard.DialogTypeSelection;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -17,11 +19,13 @@ import javax.swing.JTextArea;
 import rmi.RemoteHelper;
 
 
-public class MainFrame extends JFrame {
+public class MainFrame extends JFrame 
+{
 	private JTextArea textArea;
 	private JLabel resultLabel;
 
-	public MainFrame() {
+	public MainFrame() 
+	{
 		// 创建窗体
 		JFrame frame = new JFrame("BF Client");
 		frame.setLayout(new BorderLayout());
@@ -46,7 +50,9 @@ public class MainFrame extends JFrame {
 
 		textArea = new JTextArea();
 		textArea.setMargin(new Insets(10, 10, 10, 10));
-		textArea.setBackground(Color.LIGHT_GRAY);
+		textArea.setBackground(Color.WHITE);
+		textArea.setLineWrap(true);
+		textArea.setFont(new Font(Font.MONOSPACED,Font.PLAIN,40));
 		frame.add(textArea, BorderLayout.CENTER);
 
 		// 显示结果
@@ -65,14 +71,27 @@ public class MainFrame extends JFrame {
 		 * 子菜单响应事件
 		 */
 		@Override
-		public void actionPerformed(ActionEvent e) {
+		public void actionPerformed(ActionEvent e) 
+		{
 			String cmd = e.getActionCommand();
-			if (cmd.equals("Open")) {
+			if (cmd.equals("New")) 
+			{
+				textArea.setText("New");
+			} 
+			else if (cmd.equals("Open")) 
+			{
 				textArea.setText("Open");
-			} else if (cmd.equals("Save")) {
-				textArea.setText("Save");
-			} else if (cmd.equals("Run")) {
-				resultLabel.setText("Hello, result");
+			} 
+			else if (cmd.equals("Run")) 
+			{
+				try 
+				{
+					System.out.println(RemoteHelper.getInstance().getExecuteService().execute(textArea.getText().toString(), ""));
+				} catch (RemoteException e1) 
+				{
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 		}
 	}
@@ -82,9 +101,11 @@ public class MainFrame extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			String code = textArea.getText();
-			try {
+			try 
+			{
 				RemoteHelper.getInstance().getIOService().writeFile(code, "admin", "code");
-			} catch (RemoteException e1) {
+			} catch (RemoteException e1) 
+			{
 				e1.printStackTrace();
 			}
 		}
