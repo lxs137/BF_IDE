@@ -15,7 +15,7 @@ public class ClientRunner
 	
 	public ClientRunner() 
 	{
-		//linkToServer();
+		linkToServer();
 		initGUI();
 	}
 	
@@ -42,13 +42,6 @@ public class ClientRunner
 	
 	public void test()
 	{
-		try {
-			System.out.println(remoteHelper.getUserService().login("admin", "123456a"));
-			System.out.println(remoteHelper.getIOService().writeFile("2", "admin", "testFile"));
-			//System.out.println(remoteHelper.getExecuteService().execute("++++++++++[>+++++++>++++++++++>+++>+<<<<-]>++.>+.+++++++..+++.>++.<<+++++++++++++++.>.+++.------.--------.>+.>.", ""));
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		}
 	}
 	
 	public static void main(String[] args)
