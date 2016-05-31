@@ -1,37 +1,34 @@
 package ui;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
-import java.awt.FlowLayout;
+import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.rmi.RemoteException;
 
-import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.border.Border;
 
 import rmi.RemoteHelper;
 
 
-public class MainFrame extends JFrame 
+public class MainFrame extends JFrame
 {
 	private JFrame mainFrame;
-	private JFrame loginFrame;
+	private JFrame loginFrame; 
 	private JTextArea codeText;
 	private JTextArea paramText;
 	private JLabel resultLabel;
@@ -60,13 +57,15 @@ public class MainFrame extends JFrame
 		fileMenu.add(saveMenuItem);
 		JMenu runMenu=new JMenu("Run");
 		runMenu.setFont(new Font(Font.DIALOG,Font.PLAIN,20));
-		menuBar.add(runMenu);
-		JButton loginButton=new JButton("Login");
-		loginButton.setFont(new Font(Font.DIALOG,Font.PLAIN,20));
-		menuBar.add(loginButton, -1);
+		menuBar.add(runMenu);		
 		JMenuItem runMenuItem = new JMenuItem("Run");
 		runMenuItem.setFont(new Font(Font.DIALOG,Font.PLAIN,20));
 		runMenu.add(runMenuItem);
+		JButton loginButton=new JButton("Login");
+		loginButton.setFont(new Font(Font.DIALOG,Font.PLAIN,20));
+		loginButton.setFocusable(false);
+		menuBar.add(Box.createRigidArea(new Dimension(400,10)));
+		menuBar.add(loginButton);
 		mainFrame.setJMenuBar(menuBar);
 
 		newMenuItem.addActionListener(new MenuItemActionListener());
@@ -78,8 +77,7 @@ public class MainFrame extends JFrame
 			@Override
 			public void actionPerformed(ActionEvent e) 
 			{
-				initLoginDialog();
-				
+				initLoginDialog();				
 			}
 		});
 		
@@ -93,7 +91,6 @@ public class MainFrame extends JFrame
 		textScrollPane=new JScrollPane(codeText);
 		textScrollPane.setSize(600, 300);
 		textScrollPane.setLocation(0, 0);
-		textScrollPane.setBorder(BorderFactory.createEtchedBorder());
 		mainFrame.add(textScrollPane);
 		
 		//显示提示
@@ -102,14 +99,13 @@ public class MainFrame extends JFrame
 		hintLabel.setFont(new Font(Font.MONOSPACED,Font.PLAIN,15));
 		hintLabel.setSize(580,30);
 		hintLabel.setLocation(8,310);
-		hintLabel.setBorder(BorderFactory.createBevelBorder(10));
 		mainFrame.add(hintLabel);
 
 		//显示输入
 		paramText=new JTextArea();
 		paramText.setText("");
 		paramText.setFont(new Font(Font.MONOSPACED,Font.PLAIN,15));
-		paramText.setSize(290,50);
+		paramText.setSize(290,20);
 		paramText.setLocation(8,350);
 		mainFrame.add(paramText);
 		
@@ -124,43 +120,62 @@ public class MainFrame extends JFrame
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		mainFrame.setSize(600, 500);
 		mainFrame.setLocation(300, 100);
-		mainFrame.setVisible(true);
+		mainFrame.setVisible(false);
+		initLoginDialog();
 	}
 	
-	private void initLoginDialog()
+	public void initLoginDialog()
 	{
 		loginFrame=new JFrame("Login");
-		loginFrame.setLayout(new GridLayout(3,1));
+		JLabel userIDJLabel=new JLabel("              UserID");
+		JTextField userIDJText=new JTextField();
+		JLabel passwordJLabel=new JLabel("             Password");
+		JPasswordField passwordJText=new JPasswordField();
+		JLabel hintErrorJLabel1=new JLabel("    用户名已存在    ");
+		hintErrorJLabel1.setForeground(Color.RED);
+		JLabel hintErrorJLabel2=new JLabel("    用户名已存在    ");
+		hintErrorJLabel2.setForeground(Color.RED);
+		JButton signUpJButton=new JButton("Sign Up");
+		JButton loginJButton=new JButton(" Login  ");
+		GroupLayout groupLayout=new GroupLayout(loginFrame.getContentPane());
+		loginFrame.getContentPane().setLayout(groupLayout);
 		
-		JPanel usernameJPanel=new JPanel();
-		usernameJPanel.setLayout(new GridLayout(1,2));
-		JLabel usernameJLabel=new JLabel("Username");
-		JTextField usernameJText=new JTextField();
-		usernameJPanel.add(usernameJLabel);
-		usernameJLabel.add(usernameJText);
-		loginFrame.add(usernameJPanel);
 		
-		JPanel passwordJPanel=new JPanel();
-		passwordJPanel.setLayout(new GridLayout(1,2));
-		JLabel passwordJLabel=new JLabel("Password");
-		//passwordJLabel;
-		JTextField passwordJText=new JTextField();
-		passwordJPanel.add(passwordJLabel);
-		passwordJPanel.add(passwordJText);
-		loginFrame.add(passwordJPanel);
-		
-		JPanel buttonJPanel=new JPanel();
-		buttonJPanel.setLayout(new GridLayout(1,2));
-		JButton registerJButton=new JButton("Register");
-		JButton loginJButton=new JButton("Login");
-		buttonJPanel.add(loginJButton);
-		buttonJPanel.add(registerJButton);		
-		loginFrame.add(buttonJPanel);
-		
-		loginFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		loginFrame.setSize((int)(mainFrame.getWidth()/1.5),mainFrame.getHeight()/2);
 		loginFrame.setLocation(mainFrame.getX()+100,mainFrame.getY()+100);
 		loginFrame.setVisible(true);
+		
+		GroupLayout.SequentialGroup horizontalGroup=groupLayout.createSequentialGroup();
+		horizontalGroup.addGap(30);
+		horizontalGroup.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING).addComponent(userIDJLabel)
+				.addComponent(passwordJLabel).addComponent(loginJButton));
+		horizontalGroup.addGap(40);
+		horizontalGroup.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+				.addComponent(userIDJText).addComponent(hintErrorJLabel1)
+				.addComponent(passwordJText).addComponent(hintErrorJLabel2).addComponent(signUpJButton));
+		horizontalGroup.addGap(30);
+		groupLayout.setHorizontalGroup(horizontalGroup);
+		
+		GroupLayout.SequentialGroup verticalGroup=groupLayout.createSequentialGroup();
+		verticalGroup.addGap(50);
+		verticalGroup.addGroup(groupLayout.createParallelGroup().addComponent(userIDJLabel).addComponent(userIDJText));
+		verticalGroup.addGroup(groupLayout.createParallelGroup().addComponent(hintErrorJLabel1));
+		verticalGroup.addGap(5);
+		verticalGroup.addGroup(groupLayout.createParallelGroup().addComponent(passwordJLabel).addComponent(passwordJText));
+		verticalGroup.addGroup(groupLayout.createParallelGroup().addComponent(hintErrorJLabel2));
+		verticalGroup.addGap(20);
+		verticalGroup.addGroup(groupLayout.createParallelGroup().addComponent(loginJButton).addComponent(signUpJButton));
+		verticalGroup.addGap(30);
+		groupLayout.setVerticalGroup(verticalGroup);	
+		
+		loginJButton.addActionListener(new ActionListener() {			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				loginFrame.setVisible(false);
+				mainFrame.setVisible(true);
+			}
+		});
 	}
 
 	class MenuItemActionListener implements ActionListener 
@@ -188,7 +203,6 @@ public class MainFrame extends JFrame
 					resultLabel.setText(RemoteHelper.getInstance().getExecuteService().execute(codeText.getText(),paramText.getText()));
 				} catch (RemoteException e1) 
 				{
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 			}

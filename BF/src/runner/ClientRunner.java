@@ -5,6 +5,8 @@ import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 
+import javax.swing.plaf.synth.SynthStyle;
+
 import rmi.RemoteHelper;
 import service.IOService;
 import ui.MainFrame;
@@ -42,6 +44,20 @@ public class ClientRunner
 	
 	public void test()
 	{
+		try 
+		{
+			remoteHelper.getUserService().signUp("123","123");
+			remoteHelper.getUserService().signUp("124","124");
+			remoteHelper.getUserService().signUp("125","125");
+			System.out.println(remoteHelper.getUserService().login("123","123"));
+			System.out.println(remoteHelper.getUserService().logout("1234"));
+			System.out.println(remoteHelper.getUserService().logout("123"));
+			System.out.println(remoteHelper.getUserService().login("12","123"));
+			System.out.println(remoteHelper.getUserService().login("123","1234"));
+		} catch (RemoteException e) 
+		{
+			e.printStackTrace();
+		}
 	}
 	
 	public static void main(String[] args)
