@@ -9,26 +9,30 @@ import java.awt.event.ActionListener;
 import java.rmi.RemoteException;
 
 import javax.swing.Box;
-import javax.swing.GroupLayout;
-import javax.swing.GroupLayout.Alignment;
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JPasswordField;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
 
 import rmi.RemoteHelper;
 
 
 public class MainFrame extends JFrame
 {
-	private JFrame mainFrame;
-	private JFrame loginFrame; 
+	public static String userID;
+	
+	private JFrame mainFrame; 
+	private LoginFrame loginFrame;
+	
+	private JList<String> fileList;
 	private JTextArea codeText;
 	private JTextArea paramText;
 	private JLabel resultLabel;
@@ -77,9 +81,24 @@ public class MainFrame extends JFrame
 			@Override
 			public void actionPerformed(ActionEvent e) 
 			{
-				initLoginDialog();				
+				loginFrame.showFrame();				
 			}
 		});
+		
+		//显示文件列表
+		DefaultListModel<String> listModel=new DefaultListModel<String>();
+		listModel.addElement("HelloWorld.bf");
+		listModel.addElement("Test.bf");
+		listModel.addElement("Calculator.bf");
+		fileList=new JList<String>(listModel);
+		fileList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
+		fileList.setVisibleRowCount(10);
+		JScrollPane fileListScroll=new JScrollPane(fileList);
+		fileListScroll.setSize(150,300);
+		fileListScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		fileListScroll.setLocation(0,0);
+		fileListScroll.setVisible(true);
+		mainFrame.add(fileListScroll);
 		
 		//显示代码
 		codeText = new JTextArea();
@@ -89,8 +108,8 @@ public class MainFrame extends JFrame
 		codeText.setFont(new Font(Font.MONOSPACED,Font.PLAIN,25));	
 		codeText.setSize(600,300);
 		textScrollPane=new JScrollPane(codeText);
-		textScrollPane.setSize(600, 300);
-		textScrollPane.setLocation(0, 0);
+		textScrollPane.setSize(450, 300);
+		textScrollPane.setLocation(150, 0);
 		mainFrame.add(textScrollPane);
 		
 		//显示提示
@@ -121,62 +140,22 @@ public class MainFrame extends JFrame
 		mainFrame.setSize(600, 500);
 		mainFrame.setLocation(300, 100);
 		mainFrame.setVisible(false);
-		initLoginDialog();
+		loginFrame=new LoginFrame((int)(mainFrame.getWidth()/1.5),mainFrame.getHeight()/2,
+				mainFrame.getX()+100,mainFrame.getY()+100);
+		
+		showFrame();
 	}
 	
-	public void initLoginDialog()
+	public void showFrame()
 	{
-		loginFrame=new JFrame("Login");
-		JLabel userIDJLabel=new JLabel("              UserID");
-		JTextField userIDJText=new JTextField();
-		JLabel passwordJLabel=new JLabel("             Password");
-		JPasswordField passwordJText=new JPasswordField();
-		JLabel hintErrorJLabel1=new JLabel("    用户名已存在    ");
-		hintErrorJLabel1.setForeground(Color.RED);
-		JLabel hintErrorJLabel2=new JLabel("    用户名已存在    ");
-		hintErrorJLabel2.setForeground(Color.RED);
-		JButton signUpJButton=new JButton("Sign Up");
-		JButton loginJButton=new JButton(" Login  ");
-		GroupLayout groupLayout=new GroupLayout(loginFrame.getContentPane());
-		loginFrame.getContentPane().setLayout(groupLayout);
-		
-		
-		loginFrame.setSize((int)(mainFrame.getWidth()/1.5),mainFrame.getHeight()/2);
-		loginFrame.setLocation(mainFrame.getX()+100,mainFrame.getY()+100);
-		loginFrame.setVisible(true);
-		
-		GroupLayout.SequentialGroup horizontalGroup=groupLayout.createSequentialGroup();
-		horizontalGroup.addGap(30);
-		horizontalGroup.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING).addComponent(userIDJLabel)
-				.addComponent(passwordJLabel).addComponent(loginJButton));
-		horizontalGroup.addGap(40);
-		horizontalGroup.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-				.addComponent(userIDJText).addComponent(hintErrorJLabel1)
-				.addComponent(passwordJText).addComponent(hintErrorJLabel2).addComponent(signUpJButton));
-		horizontalGroup.addGap(30);
-		groupLayout.setHorizontalGroup(horizontalGroup);
-		
-		GroupLayout.SequentialGroup verticalGroup=groupLayout.createSequentialGroup();
-		verticalGroup.addGap(50);
-		verticalGroup.addGroup(groupLayout.createParallelGroup().addComponent(userIDJLabel).addComponent(userIDJText));
-		verticalGroup.addGroup(groupLayout.createParallelGroup().addComponent(hintErrorJLabel1));
-		verticalGroup.addGap(5);
-		verticalGroup.addGroup(groupLayout.createParallelGroup().addComponent(passwordJLabel).addComponent(passwordJText));
-		verticalGroup.addGroup(groupLayout.createParallelGroup().addComponent(hintErrorJLabel2));
-		verticalGroup.addGap(20);
-		verticalGroup.addGroup(groupLayout.createParallelGroup().addComponent(loginJButton).addComponent(signUpJButton));
-		verticalGroup.addGap(30);
-		groupLayout.setVerticalGroup(verticalGroup);	
-		
-		loginJButton.addActionListener(new ActionListener() {			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				loginFrame.setVisible(false);
-				mainFrame.setVisible(true);
-			}
-		});
+		mainFrame.setVisible(true);
 	}
-
+	
+	public void hideFrame()
+	{
+		mainFrame.setVisible(false);
+	}
+	
 	class MenuItemActionListener implements ActionListener 
 	{
 		/**

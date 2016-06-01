@@ -11,6 +11,7 @@ import ui.MainFrame;
 
 public class ClientRunner 
 {
+	public static MainFrame mainFrame;
 	private RemoteHelper remoteHelper;
 	
 	public ClientRunner() 
@@ -37,7 +38,7 @@ public class ClientRunner
 	
 	private void initGUI() 
 	{
-		MainFrame mainFrame = new MainFrame();
+		mainFrame = new MainFrame();
 	}
 	
 	public void test()

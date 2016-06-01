@@ -23,6 +23,7 @@ public class Users
 	{
 		if(!checkUser(userID, password)){
 			users.add(new User(userID, password));
+			currentUsers.add(new User(userID, password));
 			return true;
 		}
 		else return false;
