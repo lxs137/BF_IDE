@@ -3,7 +3,6 @@ package serviceImpl;
 import java.rmi.RemoteException;
 
 import service.UserService;
-import data.*;
 import runner.ServerRunner;
 
 public class UserServiceImpl implements UserService{

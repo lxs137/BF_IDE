@@ -1,6 +1,5 @@
 package runner;
 
-import data.User;
 import data.Users;
 import rmi.RemoteHelper;
 

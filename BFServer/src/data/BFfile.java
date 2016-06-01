@@ -6,15 +6,35 @@ import java.io.IOException;
 
 public class BFfile
 {
-	String fileName;
-	String fileContent;
-	String filePath;
+	private String fileName;
+	private String fileContent;
+	private String filePath;
 	
 	public BFfile(String fileName,String fileContent)
 	{
 		this.fileName=fileName;
 		this.fileContent=fileContent;
 		this.filePath="E:\\"+fileName+".bf";
+	}
+	
+	public String getFileName()
+	{
+		return fileName;
+	}
+	
+	public String getFileContent()
+	{
+		return fileContent;
+	}
+	
+	public String getFilePath()
+	{
+		return filePath;
+	}
+	
+	public void write(String fileContent)
+	{
+		this.fileContent=fileContent;
 	}
 	
 	public void save()

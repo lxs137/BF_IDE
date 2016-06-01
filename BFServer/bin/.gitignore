@@ -1,6 +1,3 @@
-/rmi/
-/service/
-/serviceImpl/
-/user/
 /data/
+/serviceImpl/
 /runner/

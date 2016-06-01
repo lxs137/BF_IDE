@@ -1,6 +1,5 @@
 package data;
 
-import java.io.File;
 import java.util.ArrayList;
 
 public class User 
@@ -27,11 +26,45 @@ public class User
 		else return false;
 	}
 	
+	public boolean writeFile(String fileName,String fileContent)
+	{
+		BFfile tempFile=findFileByName(fileName);
+		if(tempFile!=null)
+			tempFile.write(fileContent);
+		else createFile(fileName, fileContent);
+		return true;
+	}
+	
+	public String readFile(String fileName)
+	{
+		BFfile tempFile=findFileByName(fileName);
+		if(tempFile!=null)
+			return tempFile.getFileContent();
+		else return null;
+	}
+	
 	public void createFile(String fileName,String fileContent)
 	{
 		BFfile bFfile=new BFfile(fileName, fileContent);
 		files.add(bFfile);
 		bFfile.save();
+	}
+	
+	public BFfile findFileByName(String fileName)
+	{
+		for(BFfile tempFile:files)
+		{
+			if(tempFile.getFileName().equals(fileName))
+				return tempFile;
+		}
+		return null;
+	}
+	
+	public String getFileList()
+	{
+		String strFileList="";
+		for(BFfile temp:files) strFileList+=temp.getFileName()+"\r\n";		
+		return strFileList;
 	}
 	
 	

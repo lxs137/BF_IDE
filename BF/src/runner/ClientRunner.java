@@ -5,10 +5,8 @@ import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 
-import javax.swing.plaf.synth.SynthStyle;
 
 import rmi.RemoteHelper;
-import service.IOService;
 import ui.MainFrame;
 
 public class ClientRunner 

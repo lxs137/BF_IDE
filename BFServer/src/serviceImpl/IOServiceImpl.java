@@ -1,29 +1,26 @@
 package serviceImpl;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 
+import runner.ServerRunner;
 import service.IOService;
 
 public class IOServiceImpl implements IOService{
 	
 	@Override
 	public boolean writeFile(String file, String userId, String fileName) {
-		
-		return true;
+		return ServerRunner.users.writeFile(file, userId, fileName);
 	}
 
 	@Override
 	public String readFile(String userId, String fileName) {
 		// TODO Auto-generated method stub
-		return "OK";
+		return ServerRunner.users.readFile(userId, fileName);
 	}
 
 	@Override
 	public String readFileList(String userId) {
 		// TODO Auto-generated method stub
-		return "OK";
+		return ServerRunner.users.getFileList(userId);
 	}
 	
 }

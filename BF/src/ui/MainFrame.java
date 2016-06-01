@@ -171,7 +171,6 @@ public class MainFrame extends JFrame
 		loginJButton.addActionListener(new ActionListener() {			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
 				loginFrame.setVisible(false);
 				mainFrame.setVisible(true);
 			}
