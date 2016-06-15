@@ -45,14 +45,7 @@ public class ClientRunner
 	{
 		try 
 		{
-			remoteHelper.getUserService().signUp("123","123");
-			remoteHelper.getUserService().signUp("124","124");
-			remoteHelper.getUserService().signUp("125","125");
-			System.out.println(remoteHelper.getUserService().login("123","123"));
-			System.out.println(remoteHelper.getUserService().logout("1234"));
-			System.out.println(remoteHelper.getUserService().logout("123"));
-			System.out.println(remoteHelper.getUserService().login("12","123"));
-			System.out.println(remoteHelper.getUserService().login("123","1234"));
+			remoteHelper.getUserService().signUp("","");
 		} catch (RemoteException e) 
 		{
 			e.printStackTrace();

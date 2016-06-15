@@ -7,6 +7,12 @@ import service.IOService;
 public class IOServiceImpl implements IOService{
 	
 	@Override
+	public boolean newFile(String userId,String fileName)
+	{
+		return ServerRunner.users.newFile(userId, fileName);
+	}
+	
+	@Override
 	public boolean writeFile(String file, String userId, String fileName) {
 		return ServerRunner.users.writeFile(file, userId, fileName);
 	}

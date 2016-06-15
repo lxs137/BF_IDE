@@ -46,6 +46,7 @@ public class LoginFrame
 		
 		loginFrame.setSize(width,height);
 		loginFrame.setLocation(x,y);
+		loginFrame.setResizable(false);
 		loginFrame.setVisible(true);
 		
 		GroupLayout.SequentialGroup horizontalGroup=groupLayout.createSequentialGroup();
@@ -137,5 +138,6 @@ public class LoginFrame
 	{
 		loginFrame.setVisible(false);
 	}
+	
 
 }

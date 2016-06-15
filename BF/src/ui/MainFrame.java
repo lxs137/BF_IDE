@@ -7,7 +7,9 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.rmi.RemoteException;
+import java.util.Scanner;
 
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -17,10 +19,11 @@ import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.Border;
 
 import rmi.RemoteHelper;
 
@@ -32,6 +35,8 @@ public class MainFrame extends JFrame
 	private JFrame mainFrame; 
 	private LoginFrame loginFrame;
 	
+	
+	private DefaultListModel<String> listModel;
 	private JList<String> fileList;
 	private JTextArea codeText;
 	private JTextArea paramText;
@@ -39,7 +44,7 @@ public class MainFrame extends JFrame
 	private JLabel hintLabel;
 	private JScrollPane textScrollPane;
 
-	public MainFrame() 
+	public MainFrame()  
 	{
 		// 创建窗体
 		mainFrame= new JFrame("BF Client");
@@ -53,12 +58,12 @@ public class MainFrame extends JFrame
 		JMenuItem newMenuItem = new JMenuItem("New File");
 		newMenuItem.setFont(new Font(Font.DIALOG,Font.PLAIN,20));
 		fileMenu.add(newMenuItem);
-		JMenuItem openMenuItem = new JMenuItem("Open File");
-		openMenuItem.setFont(new Font(Font.DIALOG,Font.PLAIN,20));
-		fileMenu.add(openMenuItem);
 		JMenuItem saveMenuItem = new JMenuItem("Save File");
 		saveMenuItem.setFont(new Font(Font.DIALOG,Font.PLAIN,20));
 		fileMenu.add(saveMenuItem);
+		JMenu versionMenu=new JMenu("Version");
+		versionMenu.setFont(new Font(Font.DIALOG,Font.PLAIN,20));
+		menuBar.add(versionMenu);
 		JMenu runMenu=new JMenu("Run");
 		runMenu.setFont(new Font(Font.DIALOG,Font.PLAIN,20));
 		menuBar.add(runMenu);		
@@ -68,12 +73,11 @@ public class MainFrame extends JFrame
 		JButton loginButton=new JButton("Login");
 		loginButton.setFont(new Font(Font.DIALOG,Font.PLAIN,20));
 		loginButton.setFocusable(false);
-		menuBar.add(Box.createRigidArea(new Dimension(400,10)));
+		menuBar.add(Box.createRigidArea(new Dimension(300,10)));
 		menuBar.add(loginButton);
 		mainFrame.setJMenuBar(menuBar);
 
 		newMenuItem.addActionListener(new MenuItemActionListener());
-		openMenuItem.addActionListener(new MenuItemActionListener());
 		saveMenuItem.addActionListener(new SaveActionListener());
 		runMenuItem.addActionListener(new MenuItemActionListener());
 		loginButton.addActionListener(new ActionListener() 
@@ -84,31 +88,16 @@ public class MainFrame extends JFrame
 				loginFrame.showFrame();				
 			}
 		});
-		
-		//显示文件列表
-		DefaultListModel<String> listModel=new DefaultListModel<String>();
-		listModel.addElement("HelloWorld.bf");
-		listModel.addElement("Test.bf");
-		listModel.addElement("Calculator.bf");
-		fileList=new JList<String>(listModel);
-		fileList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-		fileList.setVisibleRowCount(10);
-		JScrollPane fileListScroll=new JScrollPane(fileList);
-		fileListScroll.setSize(150,300);
-		fileListScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		fileListScroll.setLocation(0,0);
-		fileListScroll.setVisible(true);
-		mainFrame.add(fileListScroll);
-		
+										
 		//显示代码
 		codeText = new JTextArea();
 		codeText.setMargin(new Insets(10, 10, 10, 10));
 		codeText.setBackground(Color.WHITE);
 		codeText.setLineWrap(true);
 		codeText.setFont(new Font(Font.MONOSPACED,Font.PLAIN,25));	
-		codeText.setSize(600,300);
+		codeText.setSize(600,300);		
 		textScrollPane=new JScrollPane(codeText);
-		textScrollPane.setSize(450, 300);
+		textScrollPane.setSize(442, 300);
 		textScrollPane.setLocation(150, 0);
 		mainFrame.add(textScrollPane);
 		
@@ -143,7 +132,18 @@ public class MainFrame extends JFrame
 		loginFrame=new LoginFrame((int)(mainFrame.getWidth()/1.5),mainFrame.getHeight()/2,
 				mainFrame.getX()+100,mainFrame.getY()+100);
 		
-		showFrame();
+		//显示文件列表
+		try 
+		{
+			String fileStr=RemoteHelper.getInstance().getIOService().readFileList(userID);
+			fileStr=((fileStr==null)?(""):fileStr);
+			String[] fileStrArra=fileStr.split("\r\n");
+			initList(fileStrArra);
+		} catch (RemoteException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		//showFrame();
 	}
 	
 	public void showFrame()
@@ -154,6 +154,26 @@ public class MainFrame extends JFrame
 	public void hideFrame()
 	{
 		mainFrame.setVisible(false);
+	}
+	
+	private void initList(String[] fileStrArra)
+	{
+		listModel=new DefaultListModel<String>();
+		for(String temp:fileStrArra)
+		{
+			listModel.addElement(temp);
+		}	
+		fileList=new JList<String>(listModel);
+		fileList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
+		fileList.setVisibleRowCount(10);
+		Border fileListBorder=BorderFactory.createEtchedBorder();
+		JScrollPane fileListScroll=new JScrollPane(fileList);
+		fileListScroll.setSize(150,300);
+		fileListScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		fileListScroll.setLocation(0,0);
+		fileListScroll.setVisible(true);
+		fileListScroll.setBorder(BorderFactory.createTitledBorder(fileListBorder, "File List"));
+		mainFrame.add(fileListScroll);
 	}
 	
 	class MenuItemActionListener implements ActionListener 
@@ -168,10 +188,6 @@ public class MainFrame extends JFrame
 			if (cmd.equals("New File")) 
 			{
 				codeText.setText("New File");
-			} 
-			else if (cmd.equals("Open File")) 
-			{
-				codeText.setText("Open File");
 			} 
 			else if (cmd.equals("Run")) 
 			{
@@ -203,6 +219,7 @@ public class MainFrame extends JFrame
 			}
 		}
 	}
+	
 	
 	
 }

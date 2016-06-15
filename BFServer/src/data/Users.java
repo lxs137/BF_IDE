@@ -88,7 +88,10 @@ public class Users
 			return tempUser.readFile(fileName);
 		else return null;
 	}
-	
+	 public boolean newFile(String userID,String fileName)
+	 {
+		 return false;
+	 }
 	/**
 	 * 按用户名获得当前登录用户的对象
 	 * @param userID  用户名
