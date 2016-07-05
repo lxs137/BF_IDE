@@ -6,9 +6,13 @@ import java.rmi.RemoteException;
 public interface IOService extends Remote{
 	public boolean newFile(String userId,String fileName) throws RemoteException;
 	
-	public boolean writeFile(String file, String userId, String fileName)throws RemoteException;
+	public boolean renameFile(String userId,String oldName,String newName) throws RemoteException;
 	
-	public String readFile(String userId, String fileName)throws RemoteException;
+	public boolean writeFile(String file, String userId, String fileName,String version)throws RemoteException;
+	
+	public String readFile(String userId, String fileName,String version)throws RemoteException;
 	
 	public String readFileList(String userId)throws RemoteException;
+	
+	public String readVersionList(String userId,String fileName)throws RemoteException;
 }

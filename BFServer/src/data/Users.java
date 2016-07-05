@@ -1,5 +1,6 @@
 package data;
 
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 
 public class Users 
@@ -24,6 +25,7 @@ public class Users
 		if(!checkUser(userID, password)){
 			users.add(new User(userID, password));
 			currentUsers.add(new User(userID, password));
+	//		System.out.println("new userID:"+userID);
 			return true;
 		}
 		else return false;
@@ -38,7 +40,7 @@ public class Users
 	public boolean addCurrentUser(String userID,String password)
 	{
 		if(checkUser(userID, password)&&findCurrentUserByID(userID)==null){			
-			currentUsers.add(new User(userID, password));
+			currentUsers.add(loadUserByID(userID));
 			return true;
 		}
 		else return false;
@@ -51,7 +53,9 @@ public class Users
 	 */
 	public boolean removeCurrentUser(String userID)
 	{
-		if(findCurrentUserByID(userID)!=null){
+		if(userID!=null&&findCurrentUserByID(userID)!=null){
+			users.remove(loadUserByID(userID));
+			users.add(findCurrentUserByID(userID));
 			currentUsers.remove(findCurrentUserByID(userID));
 	        return true;	
 		}
@@ -66,32 +70,74 @@ public class Users
 	public String getFileList(String userID)
 	{
 		User tempUser=findCurrentUserByID(userID);
+		System.out.println("filelist:"+tempUser.getFileList());
 		if(tempUser!=null)
 			return tempUser.getFileList();
 		else return null;
 	}
 	
-	public boolean writeFile(String fileContent,String userID,String fileName)
+	public String getVersionList(String userID,String fileName)
+	{
+		User tempUser=findCurrentUserByID(userID);
+		System.out.println("filelist:"+tempUser.getFileList());
+		if(tempUser!=null)
+			return tempUser.getFileList();
+		else return getVersionList(userID, fileName);
+	}
+	
+	/**
+	 * 将文件内容写入指定用户的指定文件中
+	 */
+	public boolean writeFile(String fileContent,String userID,String fileName,String version)
 	{
 		User tempUser=findCurrentUserByID(userID);
 		if(tempUser!=null){
-			tempUser.writeFile(fileName, fileContent);
+			tempUser.writeFile(fileName, fileContent,version);
 			return true;
 		}
 		else return false;	
 	}
 	
-	public String readFile(String userID,String fileName)
+	/**
+	 * 读取指定用户的指定文件内容
+	 * @param userID 用户名
+	 * @param fileName 文件名
+	 * @return
+	 */
+	public String readFile(String userID,String fileName,String version)
 	{
 		User tempUser=findCurrentUserByID(userID);
 		if(tempUser!=null)
-			return tempUser.readFile(fileName);
+			return tempUser.readFile(fileName,version);
 		else return null;
 	}
+	
+	/**
+	 * 检查是否可以在某个用户目录下新建某一文件
+	 * @param userID 同户名
+	 * @param fileName 文件名
+	 */
 	 public boolean newFile(String userID,String fileName)
-	 {
+	 {		 
+		 User tempUser=findCurrentUserByID(userID);
+		 if(tempUser!=null)
+			 return tempUser.newFile(fileName);
 		 return false;
 	 }
+	 
+	 /**
+	  * 重命名指定用户的指定文件名
+	  */
+	 public boolean renameFile(String userId,String oldName,String newName)
+	 {
+		 User tempUser=findCurrentUserByID(userId);
+		 if(tempUser!=null)
+		 {
+			 return tempUser.renameFile(oldName, newName);
+		 }
+		 return false;
+	 }
+	 
 	/**
 	 * 按用户名获得当前登录用户的对象
 	 * @param userID  用户名
@@ -100,6 +146,21 @@ public class Users
 	public User findCurrentUserByID(String userID)
 	{
 		for(User tempUser:currentUsers)
+		{
+			if(tempUser.getUserID().equals(userID)) 
+				return tempUser;
+		}
+		return null;
+	}
+	
+	/**
+	 * 按用户名获得该用户保存的信息
+	 * @param userID  用户名
+	 * @return  如用户名存在历史信息，再返回该用户
+	 */
+	public User loadUserByID(String userID)
+	{
+		for(User tempUser:users)
 		{
 			if(tempUser.getUserID().equals(userID)) 
 				return tempUser;

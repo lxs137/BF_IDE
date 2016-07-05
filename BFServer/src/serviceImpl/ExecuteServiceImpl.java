@@ -9,13 +9,11 @@ import service.ExecuteService;
 
 public class ExecuteServiceImpl implements ExecuteService 
 {
-	/**
-	 * 请实现该方法
-	 */
-	private ArrayList<Character> codeArrayList;
-	private ArrayList<Character> calculateArrayList;
-	private Stack<Integer> bracketStack;
-	private String param;
+	
+	private ArrayList<Character> codeArrayList; //储存所有代码的ArrayList
+	private ArrayList<Character> calculateArrayList; //储存计算中间结果的ArrayList
+	private Stack<Integer> bracketStack; //储存'[',']'符号的栈，以便于跳转的实现
+	private String param;//储存输入的字符串
 	public ExecuteServiceImpl()
 	{
 		super();
@@ -33,6 +31,11 @@ public class ExecuteServiceImpl implements ExecuteService
 		return result;
 	}
 
+	/**
+	 * 清空上一次计算后残留的代码空间，并将要处理的代码放入codeArrayList，输入放入param
+	 * @param code
+	 * @param param
+	 */
 	private void initData(String code,String param) 
 	{
 		this.param=param;
@@ -51,6 +54,7 @@ public class ExecuteServiceImpl implements ExecuteService
 		int code_index=0,code_n=codeArrayList.size(),calculate_index=0,param_index=0;
 		while(code_index<code_n)
 		{
+			//逐个扫描字符，实现各自的功能
 			switch (codeArrayList.get(code_index)) 
 			{
 			case '>':
@@ -95,6 +99,10 @@ public class ExecuteServiceImpl implements ExecuteService
 		}
 		return result.toString();
 	}
+	/**
+	 * 返回下一个']'字符的位置
+	 * @param code_index 当前字符所在位置
+	 */
 	private int jumpNext(int code_index)
 	{
 		bracketStack.clear();
@@ -115,6 +123,11 @@ public class ExecuteServiceImpl implements ExecuteService
 		if(!bracketStack.isEmpty()) return -1;
 		else return i-1;
 	}
+	
+	/**
+	 * 返回上一个'['字符的位置
+	 * @param code_index 当前字符的位置
+	 */
 	private int jumpBefore(int code_index)
 	{
 		bracketStack.clear();

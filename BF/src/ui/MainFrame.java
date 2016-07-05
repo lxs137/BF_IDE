@@ -6,7 +6,12 @@ import java.awt.Font;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.rmi.RemoteException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.Scanner;
 
 import javax.swing.BorderFactory;
@@ -19,38 +24,47 @@ import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import rmi.RemoteHelper;
 
 
 public class MainFrame extends JFrame
 {
-	public static String userID;
+	public String userID;
+	private String currentFileVersion;
 	
 	private JFrame mainFrame; 
-	private LoginFrame loginFrame;
-	
-	
+	private LoginDialog loginDialog;
+	private FileNameDialog fileNameDialog;
+	private ArrayList<JMenuItem> versionList;
+		
 	private DefaultListModel<String> listModel;
 	private JList<String> fileList;
 	private JTextArea codeText;
 	private JTextArea paramText;
-	private JLabel resultLabel;
+	private JTextArea resultLabel;
 	private JLabel hintLabel;
 	private JScrollPane textScrollPane;
+	private JMenu versionMenu;
 
-	public MainFrame()  
+	public MainFrame(String userID)  
 	{
 		// 创建窗体
+		this.userID=userID;
+		versionList=new ArrayList<JMenuItem>();
 		mainFrame= new JFrame("BF Client");
 		mainFrame.setLayout(null);
 		mainFrame.setResizable(false);
 
+		//创建菜单栏，包含File，Version，Run三个子菜单
 		JMenuBar menuBar = new JMenuBar();
 		JMenu fileMenu = new JMenu("File");
 		fileMenu.setFont(new Font(Font.DIALOG,Font.PLAIN,20));
@@ -61,8 +75,9 @@ public class MainFrame extends JFrame
 		JMenuItem saveMenuItem = new JMenuItem("Save File");
 		saveMenuItem.setFont(new Font(Font.DIALOG,Font.PLAIN,20));
 		fileMenu.add(saveMenuItem);
-		JMenu versionMenu=new JMenu("Version");
+		versionMenu=new JMenu("Version");
 		versionMenu.setFont(new Font(Font.DIALOG,Font.PLAIN,20));
+		
 		menuBar.add(versionMenu);
 		JMenu runMenu=new JMenu("Run");
 		runMenu.setFont(new Font(Font.DIALOG,Font.PLAIN,20));
@@ -85,7 +100,7 @@ public class MainFrame extends JFrame
 			@Override
 			public void actionPerformed(ActionEvent e) 
 			{
-				loginFrame.showFrame();				
+				loginDialog.showDialog();				
 			}
 		});
 										
@@ -103,7 +118,7 @@ public class MainFrame extends JFrame
 		
 		//显示提示
 		hintLabel=new JLabel();
-		hintLabel.setText("hint");
+		hintLabel.setText("param                                  result");
 		hintLabel.setFont(new Font(Font.MONOSPACED,Font.PLAIN,15));
 		hintLabel.setSize(580,30);
 		hintLabel.setLocation(8,310);
@@ -118,32 +133,42 @@ public class MainFrame extends JFrame
 		mainFrame.add(paramText);
 		
 		//显示结果
-		resultLabel = new JLabel();
+		resultLabel = new JTextArea();
+		resultLabel.setBackground(Color.DARK_GRAY);
+		resultLabel.setForeground(Color.GREEN);
 		resultLabel.setText("");
 		resultLabel.setFont(new Font(Font.MONOSPACED,Font.PLAIN,15));	
-		resultLabel.setSize(290,50);
-		resultLabel.setLocation(300,350);
+		resultLabel.setSize(260,20);
+		resultLabel.setLocation(330,350);
 		mainFrame.add(resultLabel);
 
-		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		mainFrame.setSize(600, 500);
+		//设置关闭窗口事件
+		mainFrame.addWindowListener(new WindowAdapter() 
+		{
+			public void windowClosing(WindowEvent e)
+			{
+				System.exit(0);
+			}
+		});
+		mainFrame.setSize(600, 450);
 		mainFrame.setLocation(300, 100);
-		mainFrame.setVisible(false);
-		loginFrame=new LoginFrame((int)(mainFrame.getWidth()/1.5),mainFrame.getHeight()/2,
-				mainFrame.getX()+100,mainFrame.getY()+100);
+		mainFrame.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		
-		//显示文件列表
+		//登录界面初始化
+		loginDialog=new LoginDialog(this.mainFrame,mainFrame.getX()+100,mainFrame.getY()+100, 
+				(int)(mainFrame.getWidth()/1.5),mainFrame.getHeight()/2);
 		try 
 		{
-			String fileStr=RemoteHelper.getInstance().getIOService().readFileList(userID);
+			String fileStr;
+			if(!userID.equals("")) fileStr=RemoteHelper.getInstance().getIOService().readFileList(userID);
+			else fileStr="noFile\r\n";
 			fileStr=((fileStr==null)?(""):fileStr);
 			String[] fileStrArra=fileStr.split("\r\n");
 			initList(fileStrArra);
 		} catch (RemoteException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		//showFrame();
+		initVersionList(versionMenu);
 	}
 	
 	public void showFrame()
@@ -156,8 +181,22 @@ public class MainFrame extends JFrame
 		mainFrame.setVisible(false);
 	}
 	
+	public void showLoginDialog()
+	{
+		loginDialog.showDialog();
+	}
+	
+	public void exitFrame()
+	{
+		mainFrame.setVisible(false);
+		mainFrame.dispose();
+	}
+
 	private void initList(String[] fileStrArra)
 	{
+		/**
+		 * 初始化文件列表
+		 */
 		listModel=new DefaultListModel<String>();
 		for(String temp:fileStrArra)
 		{
@@ -166,6 +205,21 @@ public class MainFrame extends JFrame
 		fileList=new JList<String>(listModel);
 		fileList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
 		fileList.setVisibleRowCount(10);
+		fileList.addListSelectionListener(new ListSelectionListener() {
+			
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				try {
+					currentFileVersion="noFile";
+					codeText.setText(RemoteHelper.getInstance().getIOService().readFile(userID,fileList.getSelectedValue(),currentFileVersion));
+					versionList.clear();
+					initVersionList(versionMenu);					
+				} catch (RemoteException e1) {
+					e1.printStackTrace();
+				}				
+			}
+		});
+		
 		Border fileListBorder=BorderFactory.createEtchedBorder();
 		JScrollPane fileListScroll=new JScrollPane(fileList);
 		fileListScroll.setSize(150,300);
@@ -176,10 +230,44 @@ public class MainFrame extends JFrame
 		mainFrame.add(fileListScroll);
 	}
 	
+	private void initVersionList(JMenu menu)
+	{		
+/*		String versionStr="";
+		if(!userID.equals("")&&fileList.getSelectedValue()!=null) 
+			try{
+				versionStr=RemoteHelper.getInstance().getIOService().readVersionList(userID,fileList.getSelectedValue());
+				versionStr=((versionStr==null)?(""):versionStr);
+			}
+			catch (RemoteException re) {
+				re.printStackTrace();
+			}
+		else versionStr="noFile\r\n";		
+		String[] versionStrArra=versionStr.split("\r\n");
+		for(String version:versionStrArra)
+			versionList.add(new JMenuItem(version));
+*/		for(JMenuItem version:versionList)
+		{
+			menu.add(version);
+			version.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					currentFileVersion=version.getText();
+					try {
+						codeText.setText(RemoteHelper.getInstance().getIOService()
+								.readFile(userID, fileList.getSelectedValue(),currentFileVersion));
+					} catch (RemoteException e1) {
+						e1.printStackTrace();
+					}
+				}
+			});
+		}		
+	}
+	
 	class MenuItemActionListener implements ActionListener 
 	{
 		/**
-		 * 子菜单响应事件
+		 * 菜单栏子菜单响应事件
 		 */
 		@Override
 		public void actionPerformed(ActionEvent e) 
@@ -187,14 +275,25 @@ public class MainFrame extends JFrame
 			String cmd = e.getActionCommand();
 			if (cmd.equals("New File")) 
 			{
-				codeText.setText("New File");
+				fileNameDialog=new FileNameDialog(mainFrame,mainFrame.getX()+150,mainFrame.getY()+150, 
+						(int)(mainFrame.getWidth()/2),(int)(mainFrame.getHeight()/4));		
+				fileNameDialog.showDialog();
+				try{
+					//服务器监测文件名是否重名
+					if(!RemoteHelper.getInstance().getIOService().newFile(userID, fileNameDialog.getFileName()))
+						JOptionPane.showMessageDialog(mainFrame, "文件名已存在","",JOptionPane.ERROR_MESSAGE);					
+					else listModel.addElement(fileNameDialog.getFileName());
+				}catch(RemoteException re)
+				{
+					re.printStackTrace();
+				}
 			} 
-			else if (cmd.equals("Run")) 
+			else if (cmd.equals("Run"))  
 			{
 				try 
 				{
 					resultLabel.setText("");
-					resultLabel.setText(RemoteHelper.getInstance().getExecuteService().execute(codeText.getText(),paramText.getText()));
+					resultLabel.setText(RemoteHelper.getInstance().getExecuteService().execute(codeText.getText(),paramText.getText()+'\n'));
 				} catch (RemoteException e1) 
 				{
 					e1.printStackTrace();
@@ -205,6 +304,9 @@ public class MainFrame extends JFrame
 
 	class SaveActionListener implements ActionListener 
 	{
+		/**
+		 * 保存代码
+		 */
 
 		@Override
 		public void actionPerformed(ActionEvent e) 
@@ -212,7 +314,13 @@ public class MainFrame extends JFrame
 			String code = codeText.getText();
 			try 
 			{
-				RemoteHelper.getInstance().getIOService().writeFile(code, "admin", "code");
+				//保存文件内容到服务器端
+				Date now=new Date();
+				SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HH_mm_ss");
+				currentFileVersion=dateFormat.format(now);
+				versionList.add(new JMenuItem(currentFileVersion));
+				RemoteHelper.getInstance().getIOService().writeFile(code,userID,fileList.getSelectedValue(),currentFileVersion);
+				initVersionList(versionMenu);
 			} catch (RemoteException e1) 
 			{
 				e1.printStackTrace();

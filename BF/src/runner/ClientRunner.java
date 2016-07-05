@@ -38,7 +38,8 @@ public class ClientRunner
 	
 	private void initGUI() 
 	{
-		mainFrame = new MainFrame();
+		mainFrame = new MainFrame("");
+		mainFrame.showLoginDialog();
 	}
 	
 	public void test()
