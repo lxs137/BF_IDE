@@ -30,7 +30,6 @@ import javax.swing.event.ListSelectionListener;
 
 import rmi.RemoteHelper;
 
-
 public class MainFrame extends JFrame
 {
 	public String userID;
@@ -47,8 +46,7 @@ public class MainFrame extends JFrame
 	private JLabel hintLabel;
 	private VersionMenu versionMenu;
 
-	public MainFrame(String userID)  
-	{
+	public MainFrame(String userID)  {
 		// 创建窗体
 		this.userID=userID;
 		mainFrame= new JFrame("BF Client");
@@ -67,8 +65,7 @@ public class MainFrame extends JFrame
 		saveMenuItem.setFont(new Font(Font.DIALOG,Font.PLAIN,20));
 		fileMenu.add(saveMenuItem);
 		versionMenu=new VersionMenu("Version");
-		versionMenu.setFont(new Font(Font.DIALOG,Font.PLAIN,20));
-		
+		versionMenu.setFont(new Font(Font.DIALOG,Font.PLAIN,20));		
 		menuBar.add(versionMenu);
 		JMenu runMenu=new JMenu("Run");
 		runMenu.setFont(new Font(Font.DIALOG,Font.PLAIN,20));
@@ -82,12 +79,11 @@ public class MainFrame extends JFrame
 		menuBar.add(Box.createRigidArea(new Dimension(300,10)));
 		menuBar.add(loginButton);
 		mainFrame.setJMenuBar(menuBar);
-
+		
 		newMenuItem.addActionListener(new MenuItemActionListener());
-		saveMenuItem.addActionListener(new SaveActionListener());
+		saveMenuItem.addActionListener(new MenuItemActionListener());
 		runMenuItem.addActionListener(new MenuItemActionListener());
-		loginButton.addActionListener(new ActionListener() 
-		{			
+		loginButton.addActionListener(new ActionListener() {			
 			@Override
 			public void actionPerformed(ActionEvent e) 
 			{
@@ -134,8 +130,7 @@ public class MainFrame extends JFrame
 		mainFrame.add(resultLabel);
 
 		//设置关闭窗口事件
-		mainFrame.addWindowListener(new WindowAdapter() 
-		{
+		mainFrame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e)
 			{
 				System.exit(0);
@@ -148,8 +143,7 @@ public class MainFrame extends JFrame
 		//登录界面初始化
 		loginDialog=new LoginDialog(this.mainFrame,mainFrame.getX()+100,mainFrame.getY()+100, 
 				(int)(mainFrame.getWidth()/1.5),mainFrame.getHeight()/2);
-		try 
-		{
+		try {
 			String fileStr;
 			if(!userID.equals("")) fileStr=RemoteHelper.getInstance().getIOService().readFileList(userID);
 			else fileStr="noFile\r\n";
@@ -161,37 +155,24 @@ public class MainFrame extends JFrame
 		}
 	}
 	
-	public void showFrame()
-	{
-		mainFrame.setVisible(true);
-	}
+	public void showFrame(){ mainFrame.setVisible(true);}
 	
-	public void hideFrame()
-	{
-		mainFrame.setVisible(false);
-	}
+	public void hideFrame(){ mainFrame.setVisible(false);}
 	
-	public void showLoginDialog()
-	{
-		loginDialog.showDialog();
-	}
+	public void showLoginDialog(){ loginDialog.showDialog();}
 	
-	public void exitFrame()
-	{
+	public void exitFrame(){
 		mainFrame.setVisible(false);
 		mainFrame.dispose();
 	}
 
-	private void initList(String[] fileStrArra)
-	{
+	private void initList(String[] fileStrArra){
 		/**
 		 * 初始化文件列表
 		 */
 		listModel=new DefaultListModel<String>();
 		for(String temp:fileStrArra)
-		{
-			listModel.addElement(temp);
-		}	
+			listModel.addElement(temp);	
 		fileList=new JList<String>(listModel);
 		fileList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
 		fileList.setVisibleRowCount(10);
@@ -215,17 +196,14 @@ public class MainFrame extends JFrame
 		mainFrame.add(fileListScroll);
 	}
 
-	class MenuItemActionListener implements ActionListener 
-	{
+	class MenuItemActionListener implements ActionListener {
 		/**
 		 * 菜单栏子菜单响应事件
 		 */
 		@Override
-		public void actionPerformed(ActionEvent e) 
-		{
+		public void actionPerformed(ActionEvent e) {
 			String cmd = e.getActionCommand();
-			if (cmd.equals("New File")) 
-			{
+			if (cmd.equals("New File")) {
 				fileNameDialog=new FileNameDialog(mainFrame,mainFrame.getX()+150,mainFrame.getY()+150, 
 						(int)(mainFrame.getWidth()/2),(int)(mainFrame.getHeight()/4));		
 				fileNameDialog.showDialog();
@@ -239,10 +217,8 @@ public class MainFrame extends JFrame
 					re.printStackTrace();
 				}
 			} 
-			else if (cmd.equals("Run"))  
-			{
-				try 
-				{
+			else if (cmd.equals("Run"))  {
+				try {
 					resultLabel.setText("");
 					resultLabel.setText(RemoteHelper.getInstance().getExecuteService().execute(codeText.getText(),paramText.getText()+'\n'));
 				} catch (RemoteException e1) 
@@ -250,33 +226,19 @@ public class MainFrame extends JFrame
 					e1.printStackTrace();
 				}
 			}
-		}
-	}
-
-	class SaveActionListener implements ActionListener 
-	{
-		/**
-		 * 保存代码
-		 */
-
-		@Override
-		public void actionPerformed(ActionEvent e) 
-		{
-			String code = codeText.getText();
-			try 
-			{
-				//保存文件内容到服务器端
-				RemoteHelper.getInstance().getIOService().writeFile(code,userID,
-						fileList.getSelectedValue(),versionMenu.getCurrentFileVersion());
-				versionMenu.initVersionList(userID,fileList.getSelectedValue(),codeText);
-				versionMenu.setCurrentFileVersion(versionMenu.getNewestVersion());
-			} catch (RemoteException e1) 
-			{
-				e1.printStackTrace();
+			else if (cmd.equals("Save File")) {
+				String code = codeText.getText();
+				try {
+					//保存文件内容到服务器端
+					RemoteHelper.getInstance().getIOService().writeFile(code,userID,
+							fileList.getSelectedValue(),versionMenu.getCurrentFileVersion());
+					versionMenu.initVersionList(userID,fileList.getSelectedValue(),codeText);
+					versionMenu.setCurrentFileVersion(versionMenu.getNewestVersion());
+				} catch (RemoteException e1) 
+				{
+					e1.printStackTrace();
+				}
 			}
 		}
-	}
-	
-	
-	
+	}	
 }
