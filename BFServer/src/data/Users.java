@@ -71,18 +71,16 @@ public class Users
 	{
 		User tempUser=findCurrentUserByID(userID);
 		System.out.println("filelist:"+tempUser.getFileList());
-		if(tempUser!=null)
-			return tempUser.getFileList();
+		if(tempUser!=null) return tempUser.getFileList();
 		else return null;
 	}
 	
 	public String getVersionList(String userID,String fileName)
 	{
 		User tempUser=findCurrentUserByID(userID);
-		System.out.println("filelist:"+tempUser.getFileList());
-		if(tempUser!=null)
-			return tempUser.getFileList();
-		else return getVersionList(userID, fileName);
+		System.out.println("filelist:"+tempUser.getVersionList(fileName));
+		if(tempUser!=null) return tempUser.getVersionList(fileName);
+		else return null;
 	}
 	
 	/**

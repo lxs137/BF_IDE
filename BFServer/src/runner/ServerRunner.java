@@ -9,7 +9,7 @@ public class ServerRunner {
 	
 	public ServerRunner() {
 		new RemoteHelper();
-		users=new Users();		
+		users=new Users();
 	}
 	
 	public static void main(String[] args) {

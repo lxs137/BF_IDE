@@ -9,10 +9,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.rmi.RemoteException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Scanner;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -28,7 +24,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
-import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -39,12 +34,10 @@ import rmi.RemoteHelper;
 public class MainFrame extends JFrame
 {
 	public String userID;
-	private String currentFileVersion;
 	
 	private JFrame mainFrame; 
 	private LoginDialog loginDialog;
 	private FileNameDialog fileNameDialog;
-	private ArrayList<JMenuItem> versionList;
 		
 	private DefaultListModel<String> listModel;
 	private JList<String> fileList;
@@ -52,14 +45,12 @@ public class MainFrame extends JFrame
 	private JTextArea paramText;
 	private JTextArea resultLabel;
 	private JLabel hintLabel;
-	private JScrollPane textScrollPane;
-	private JMenu versionMenu;
+	private VersionMenu versionMenu;
 
 	public MainFrame(String userID)  
 	{
 		// 创建窗体
 		this.userID=userID;
-		versionList=new ArrayList<JMenuItem>();
 		mainFrame= new JFrame("BF Client");
 		mainFrame.setLayout(null);
 		mainFrame.setResizable(false);
@@ -75,7 +66,7 @@ public class MainFrame extends JFrame
 		JMenuItem saveMenuItem = new JMenuItem("Save File");
 		saveMenuItem.setFont(new Font(Font.DIALOG,Font.PLAIN,20));
 		fileMenu.add(saveMenuItem);
-		versionMenu=new JMenu("Version");
+		versionMenu=new VersionMenu("Version");
 		versionMenu.setFont(new Font(Font.DIALOG,Font.PLAIN,20));
 		
 		menuBar.add(versionMenu);
@@ -111,7 +102,7 @@ public class MainFrame extends JFrame
 		codeText.setLineWrap(true);
 		codeText.setFont(new Font(Font.MONOSPACED,Font.PLAIN,25));	
 		codeText.setSize(600,300);		
-		textScrollPane=new JScrollPane(codeText);
+		JScrollPane textScrollPane=new JScrollPane(codeText);
 		textScrollPane.setSize(442, 300);
 		textScrollPane.setLocation(150, 0);
 		mainFrame.add(textScrollPane);
@@ -168,7 +159,6 @@ public class MainFrame extends JFrame
 		} catch (RemoteException e1) {
 			e1.printStackTrace();
 		}
-		initVersionList(versionMenu);
 	}
 	
 	public void showFrame()
@@ -205,18 +195,13 @@ public class MainFrame extends JFrame
 		fileList=new JList<String>(listModel);
 		fileList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
 		fileList.setVisibleRowCount(10);
-		fileList.addListSelectionListener(new ListSelectionListener() {
-			
+		fileList.addListSelectionListener(new ListSelectionListener() {			
 			@Override
 			public void valueChanged(ListSelectionEvent e) {
-				try {
-					currentFileVersion="noFile";
-					codeText.setText(RemoteHelper.getInstance().getIOService().readFile(userID,fileList.getSelectedValue(),currentFileVersion));
-					versionList.clear();
-					initVersionList(versionMenu);					
-				} catch (RemoteException e1) {
-					e1.printStackTrace();
-				}				
+				versionMenu.setCurrentFileVersion("noFile");
+				versionMenu.clearVersionList();
+				versionMenu.initVersionList(userID,fileList.getSelectedValue(),codeText);
+				codeText.setText("");				
 			}
 		});
 		
@@ -229,41 +214,7 @@ public class MainFrame extends JFrame
 		fileListScroll.setBorder(BorderFactory.createTitledBorder(fileListBorder, "File List"));
 		mainFrame.add(fileListScroll);
 	}
-	
-	private void initVersionList(JMenu menu)
-	{		
-/*		String versionStr="";
-		if(!userID.equals("")&&fileList.getSelectedValue()!=null) 
-			try{
-				versionStr=RemoteHelper.getInstance().getIOService().readVersionList(userID,fileList.getSelectedValue());
-				versionStr=((versionStr==null)?(""):versionStr);
-			}
-			catch (RemoteException re) {
-				re.printStackTrace();
-			}
-		else versionStr="noFile\r\n";		
-		String[] versionStrArra=versionStr.split("\r\n");
-		for(String version:versionStrArra)
-			versionList.add(new JMenuItem(version));
-*/		for(JMenuItem version:versionList)
-		{
-			menu.add(version);
-			version.addActionListener(new ActionListener() {
-				
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					currentFileVersion=version.getText();
-					try {
-						codeText.setText(RemoteHelper.getInstance().getIOService()
-								.readFile(userID, fileList.getSelectedValue(),currentFileVersion));
-					} catch (RemoteException e1) {
-						e1.printStackTrace();
-					}
-				}
-			});
-		}		
-	}
-	
+
 	class MenuItemActionListener implements ActionListener 
 	{
 		/**
@@ -315,12 +266,10 @@ public class MainFrame extends JFrame
 			try 
 			{
 				//保存文件内容到服务器端
-				Date now=new Date();
-				SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HH_mm_ss");
-				currentFileVersion=dateFormat.format(now);
-				versionList.add(new JMenuItem(currentFileVersion));
-				RemoteHelper.getInstance().getIOService().writeFile(code,userID,fileList.getSelectedValue(),currentFileVersion);
-				initVersionList(versionMenu);
+				RemoteHelper.getInstance().getIOService().writeFile(code,userID,
+						fileList.getSelectedValue(),versionMenu.getCurrentFileVersion());
+				versionMenu.initVersionList(userID,fileList.getSelectedValue(),codeText);
+				versionMenu.setCurrentFileVersion(versionMenu.getNewestVersion());
 			} catch (RemoteException e1) 
 			{
 				e1.printStackTrace();

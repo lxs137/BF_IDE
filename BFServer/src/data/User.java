@@ -69,14 +69,11 @@ public class User
 	{
 		BFfile tempFile=findFileByName(fileName);
 		if(tempFile!=null){
-			if(version.equals("noFile")) tempFile.save(userID,version);
-			else if(!tempFile.getFileContent(version).equals(fileContent)){
-				tempFile.write(fileContent,version);
-				tempFile.save(userID,version);
-			}						
+			tempFile.write(fileContent, version);
+			tempFile.save(userID);
+			return true;
 		}
-		else createFile(fileName, fileContent);
-		return true;
+		else return false;
 	}
 	
 	/**
@@ -135,11 +132,9 @@ public class User
 	{
 		BFfile tempFile=findFileByName(fileName);
 		if(tempFile==null)
-			return "";
+			return null;
 		else 
-		{
 			return tempFile.getVersionList();
-		}
 	}
 	
 

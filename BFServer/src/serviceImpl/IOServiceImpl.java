@@ -40,7 +40,7 @@ public class IOServiceImpl implements IOService{
 	@Override
 	public String readVersionList(String userId, String fileName) throws RemoteException {
 		// TODO Auto-generated method stub
-		return null;
+		return ServerRunner.users.getVersionList(userId, fileName);
 	}
 	
 }
