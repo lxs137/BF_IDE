@@ -1,6 +1,5 @@
 package data;
 
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 
 public class Users 
@@ -25,7 +24,6 @@ public class Users
 		if(!checkUser(userID, password)){
 			users.add(new User(userID, password));
 			currentUsers.add(new User(userID, password));
-	//		System.out.println("new userID:"+userID);
 			return true;
 		}
 		else return false;
@@ -70,7 +68,6 @@ public class Users
 	public String getFileList(String userID)
 	{
 		User tempUser=findCurrentUserByID(userID);
-		System.out.println("filelist:"+tempUser.getFileList());
 		if(tempUser!=null) return tempUser.getFileList();
 		else return null;
 	}
@@ -78,7 +75,6 @@ public class Users
 	public String getVersionList(String userID,String fileName)
 	{
 		User tempUser=findCurrentUserByID(userID);
-		System.out.println("filelist:"+tempUser.getVersionList(fileName));
 		if(tempUser!=null) return tempUser.getVersionList(fileName);
 		else return null;
 	}

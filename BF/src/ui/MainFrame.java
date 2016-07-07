@@ -6,6 +6,7 @@ import java.awt.Font;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.rmi.RemoteException;
@@ -23,6 +24,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.Border;
 import javax.swing.event.ListSelectionEvent;
@@ -40,7 +42,7 @@ public class MainFrame extends JFrame
 		
 	private DefaultListModel<String> listModel;
 	private JList<String> fileList;
-	private JTextArea codeText;
+	private UndoTextArea codeText;
 	private JTextArea paramText;
 	private JTextArea resultLabel;
 	private JLabel hintLabel;
@@ -64,15 +66,30 @@ public class MainFrame extends JFrame
 		JMenuItem saveMenuItem = new JMenuItem("Save File");
 		saveMenuItem.setFont(new Font(Font.DIALOG,Font.PLAIN,20));
 		fileMenu.add(saveMenuItem);
+		
 		versionMenu=new VersionMenu("Version");
 		versionMenu.setFont(new Font(Font.DIALOG,Font.PLAIN,20));		
 		menuBar.add(versionMenu);
+		
+		JMenu editMenu=new JMenu("Edit");
+		editMenu.setFont(new Font(Font.DIALOG,Font.PLAIN,20));
+		JMenuItem undoItem=new JMenuItem("Undo");
+		undoItem.setFont(new Font(Font.DIALOG,Font.PLAIN,20));
+		JMenuItem redoItem=new JMenuItem("Redo");
+		redoItem.setFont(new Font(Font.DIALOG,Font.PLAIN,20));
+		undoItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z,KeyEvent.CTRL_MASK));
+		redoItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y,KeyEvent.CTRL_MASK));
+		editMenu.add(undoItem);
+		editMenu.add(redoItem);
+		menuBar.add(editMenu);
+		
 		JMenu runMenu=new JMenu("Run");
 		runMenu.setFont(new Font(Font.DIALOG,Font.PLAIN,20));
 		menuBar.add(runMenu);		
 		JMenuItem runMenuItem = new JMenuItem("Run");
 		runMenuItem.setFont(new Font(Font.DIALOG,Font.PLAIN,20));
 		runMenu.add(runMenuItem);
+		
 		JButton loginButton=new JButton("Login");
 		loginButton.setFont(new Font(Font.DIALOG,Font.PLAIN,20));
 		loginButton.setFocusable(false);
@@ -82,6 +99,8 @@ public class MainFrame extends JFrame
 		
 		newMenuItem.addActionListener(new MenuItemActionListener());
 		saveMenuItem.addActionListener(new MenuItemActionListener());
+		undoItem.addActionListener(new MenuItemActionListener());
+		redoItem.addActionListener(new MenuItemActionListener());
 		runMenuItem.addActionListener(new MenuItemActionListener());
 		loginButton.addActionListener(new ActionListener() {			
 			@Override
@@ -92,7 +111,7 @@ public class MainFrame extends JFrame
 		});
 										
 		//显示代码
-		codeText = new JTextArea();
+		codeText = new UndoTextArea(null);
 		codeText.setMargin(new Insets(10, 10, 10, 10));
 		codeText.setBackground(Color.WHITE);
 		codeText.setLineWrap(true);
@@ -226,6 +245,10 @@ public class MainFrame extends JFrame
 					e1.printStackTrace();
 				}
 			}
+			else if (cmd.equals("Undo"))
+				codeText.undo();
+			else if (cmd.equals("Redo"))
+				codeText.redo();
 			else if (cmd.equals("Save File")) {
 				String code = codeText.getText();
 				try {
@@ -234,6 +257,7 @@ public class MainFrame extends JFrame
 							fileList.getSelectedValue(),versionMenu.getCurrentFileVersion());
 					versionMenu.initVersionList(userID,fileList.getSelectedValue(),codeText);
 					versionMenu.setCurrentFileVersion(versionMenu.getNewestVersion());
+					codeText.clearHistory();
 				} catch (RemoteException e1) 
 				{
 					e1.printStackTrace();

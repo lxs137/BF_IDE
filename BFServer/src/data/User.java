@@ -39,7 +39,6 @@ public class User
 		else 
 		{
 			createFile(fileName, "");
-//			System.out.println("A User new file:"+userID+"-"+fileName);
 			return true;
 		}
 	}
@@ -97,10 +96,6 @@ public class User
 	{
 		BFfile bFfile=new BFfile(fileName, fileContent);
 		files.add(bFfile);
-		for(BFfile tempFile:files)
-		{
-//			System.out.println("userId-Allfile:"+userID+"-"+tempFile.getFileName());
-		}
 	}
 	
 	/**
