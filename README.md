@@ -1,2 +1,2 @@
-# BF_IDE
-This is a BF IDE.
+# BF_editor
+This is a BF editor.
